@@ -28,19 +28,19 @@ app.get("/movie", (req, res) => {
   let results = movies;
 
   if (genre) {
-    results = movies.filter((movie) =>
+    results = results.filter((movie) =>
       movie.genre.toLowerCase().includes(genre.toLowerCase())
     );
   }
 
   if (country) {
-    results = movies.filter((movie) =>
+    results = results.filter((movie) =>
       movie.country.toLowerCase().includes(country.toLowerCase())
     );
   }
 
   if (avg_vote) {
-    results = movies.filter((movie) => {
+    results = results.filter((movie) => {
       return movie.avg_vote >= Number(avg_vote);
     });
   }
