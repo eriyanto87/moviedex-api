@@ -1,20 +1,31 @@
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
-const movies = require("./movies-data.json");
+const cors = require("cors");
+const helmet = require("helmet");
 
 const app = express();
 const PORT = 8000;
+const movies = require("./movies-data.json");
 
 app.use(morgan("common"));
+app.use(cors());
+app.use(helmet());
 app.use(function validateBearerToken(req, res, next) {
-  console.log("validate bearer token middleware");
+  const bearerToken = req.get("Authorization");
+  const apiToken = process.env.API_TOKEN;
+
+  if (!bearerToken || bearerToken.split(" ")[1] !== apiToken) {
+    res.status(401).json("Unauthorized Request");
+  }
+
   next();
 });
 
 app.get("/movie", (req, res) => {
   const { genre, country, avg_vote } = req.query;
 
-  let results;
+  let results = movies;
 
   if (genre) {
     results = movies.filter((movie) =>
