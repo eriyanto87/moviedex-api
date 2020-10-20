@@ -6,6 +6,10 @@ const app = express();
 const PORT = 8000;
 
 app.use(morgan("common"));
+app.use(function validateBearerToken(req, res, next) {
+  console.log("validate bearer token middleware");
+  next();
+});
 
 app.get("/movie", (req, res) => {
   const { genre, country, avg_vote } = req.query;
@@ -22,6 +26,12 @@ app.get("/movie", (req, res) => {
     results = movies.filter((movie) =>
       movie.country.toLowerCase().includes(country.toLowerCase())
     );
+  }
+
+  if (avg_vote) {
+    results = movies.filter((movie) => {
+      return movie.avg_vote >= Number(avg_vote);
+    });
   }
 
   res.json(results);
