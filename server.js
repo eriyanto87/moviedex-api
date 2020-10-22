@@ -5,12 +5,13 @@ const cors = require("cors");
 const helmet = require("helmet");
 
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 const movies = require("./movies-data.json");
 
-app.use(morgan("common"));
-app.use(cors());
+const morganSetting = process.env.NODE_ENV === "production" ? "tiny" : "common";
+app.use(morgan(morganSetting));
 app.use(helmet());
+app.use(cors());
 app.use(function validateBearerToken(req, res, next) {
   const bearerToken = req.get("Authorization");
   const apiToken = process.env.API_TOKEN;
@@ -48,6 +49,16 @@ app.get("/movie", (req, res) => {
   res.json(results);
 });
 
+app.use((error, req, res, next) => {
+  let response;
+  if (process.env.NODE_ENV === "production") {
+    response = { error: { message: "server error" } };
+  } else {
+    response = { error };
+  }
+  res.status(500).json(response);
+});
+
 app.listen(PORT, () => {
-  console.log(`server is running on http://localhost:${PORT}`);
+  console.log(`server is running on ${PORT}`);
 });
